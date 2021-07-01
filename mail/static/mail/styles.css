@@ -1,3 +1,19 @@
 textarea {
     min-height: 400px;
 }
+
+.sender-and-body {
+    float: left;
+    margin-bottom: 6px;
+    margin-left: 5px;
+}
+
+.timestamp {
+    float: right;
+}
+
+.email-div {
+    border: medium solid #e9ede8;
+    margin-top: 5px;
+    overflow: hidden;
+}

@@ -62,30 +62,25 @@ function load_mailbox(mailbox) {
 
       // ... do something else with emails ...
       emailView = document.querySelector('#emails-view');
-      for (const mail of emails) { 
+
+      emails.forEach( mail => {
         emailDiv = document.createElement('div');
-        emailDiv.style.border = 'medium solid #e9ede8';
-        emailDiv.style.marginTop = '5px';
+        emailDiv.classList.add("email-div");
+
         if (mail.read === true) {
           emailDiv.style.color = 'grey';
         }
-
         senderAndBody = document.createElement('p');
         senderAndBody.innerHTML = `<b>${mail.sender}</b> || ${mail.body}`
+        senderAndBody.classList.add("sender-and-body");
+
         timeStamp = document.createElement('p');
         timeStamp.innerHTML = `${mail.timestamp}`;
-        senderAndBody.style.cssFloat = 'left'
-        timeStamp.style.cssFloat = 'right'
-        senderAndBody.style.marginBot = '6px';
-        emailDiv.style.overflow = 'hidden';
+        timeStamp.classList.add("timestamp");
 
-        senderAndBody.style.marginLeft = '5px'
         emailDiv.append(senderAndBody);
         emailDiv.append(timeStamp);
-        //emailDiv.innerHTML = `${mail.sender} || ${mail.body} || ${mail.timestamp}`
-
         emailView.append(emailDiv);
-      }
-
+      });
     });
 }
