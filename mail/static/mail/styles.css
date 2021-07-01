@@ -17,3 +17,9 @@ textarea {
     margin-top: 5px;
     overflow: hidden;
 }
+
+.email-link { 
+    display: block;
+    z-index: 1;
+    color: inherit;
+}

@@ -19,6 +19,8 @@ function compose_email() {
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'block';
+  document.querySelector('#email-view').style.display = 'none';
+  document.querySelector('#email-view').innerHTML = '';
 
   // Clear out composition fields
   document.querySelector('#compose-recipients').value = '';
@@ -50,6 +52,10 @@ function load_mailbox(mailbox) {
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
 
+  //Clean and hide email view
+  document.querySelector('#email-view').style.display = 'none';
+  document.querySelector('#email-view').innerHTML = '';
+
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
@@ -63,7 +69,17 @@ function load_mailbox(mailbox) {
       // ... do something else with emails ...
       emailView = document.querySelector('#emails-view');
 
-      emails.forEach( mail => {
+      emails.forEach(mail => {
+
+        emailLink = document.createElement('a');
+        emailLink.id = `${mail.id}`
+        emailLink.classList.add("email-link")
+        emailLink.href = 'javascript:;'
+        emailLink.onclick = () => {
+          viewEmail(mail.id);
+        }
+        //emailLink.addEventListener('click', viewEmail());
+
         emailDiv = document.createElement('div');
         emailDiv.classList.add("email-div");
 
@@ -80,7 +96,38 @@ function load_mailbox(mailbox) {
 
         emailDiv.append(senderAndBody);
         emailDiv.append(timeStamp);
-        emailView.append(emailDiv);
+        emailLink.append(emailDiv);
+        emailView.append(emailLink);
       });
     });
+}
+
+const viewEmail = mailID => {
+  document.querySelector('#emails-view').style.display = 'none';
+  document.querySelector('#compose-view').style.display = 'none';
+  document.querySelector('#email-view').style.display = 'block';
+
+
+  fetch(`/emails/${mailID}`)
+    .then(response => response.json())
+    .then(email => {
+      // Print email
+      console.log(email);
+
+      // ... do something else with email ...
+      viewEmailDiv = document.querySelector('#email-view');
+
+      text = document.createElement('p');
+      text.innerHTML = `<b>${email.sender}</b> <p>${email.subject}</p> <p>${email.body}</p> <p>${email.timestamp}</p>`
+
+      viewEmailDiv.append(text);
+    });
+
+  //mark as read
+  fetch(`/emails/${mailID}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      read: true
+    })
+  })
 }
