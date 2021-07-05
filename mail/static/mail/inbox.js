@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelector('#inbox').addEventListener('click', () => load_mailbox('inbox'));
   document.querySelector('#sent').addEventListener('click', () => load_mailbox('sent'));
   document.querySelector('#archived').addEventListener('click', () => load_mailbox('archive'));
-  document.querySelector('#compose').addEventListener('click', compose_email);
+  document.querySelector('#compose').addEventListener('click', () => compose_email());
   document.querySelector('#compose-form').addEventListener('submit', (e) => {
     e.preventDefault()
     load_mailbox('sent')
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
   load_mailbox('inbox');
 });
 
-function compose_email() {
+function compose_email(email = '') {
 
   // Show compose view and hide other views
   document.querySelector('#emails-view').style.display = 'none';
@@ -22,10 +22,25 @@ function compose_email() {
   document.querySelector('#email-view').style.display = 'none';
   document.querySelector('#email-view').innerHTML = '';
 
-  // Clear out composition fields
-  document.querySelector('#compose-recipients').value = '';
-  document.querySelector('#compose-subject').value = '';
-  document.querySelector('#compose-body').value = '';
+  recipients = document.querySelector('#compose-recipients');
+  subject = document.querySelector('#compose-subject');
+  body = document.querySelector('#compose-body');
+
+  if (email == '') {
+    recipients.value = '';
+    subject.value = '';
+    body.value = '';
+  } else {
+    recipients.value = `${email.sender}`;
+    recipients.disabled = true;
+
+    subject.value = `Re: ${email.subject}`;
+    recipients.disabled = true;
+
+    body.value = `On ${email.timestamp}, ${email.sender} wrote: ${email.body}`;
+  }
+
+  console.log(email);
 
   //getting the form content
   document.querySelector('#compose-form').onsubmit = () => {
@@ -130,9 +145,18 @@ const viewEmail = (mailID, mailbox) => {
           archiveButton.textContent = 'Archive';
         }
 
+        replyButton = document.createElement('button');
+        replyButton.textContent = 'Reply';
+
+        replyButton.onclick = () => {
+          compose_email(email);
+        }
+
         archiveButton.onclick = () => {
           archiveMail(mailID, email.archived);
         }
+
+        viewEmailDiv.append(replyButton);
         viewEmailDiv.append(archiveButton);
       }
 
