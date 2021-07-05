@@ -59,6 +59,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
 
+
   // Get mails
   fetch(`/emails/${mailbox}`)
     .then(response => response.json())
@@ -76,9 +77,8 @@ function load_mailbox(mailbox) {
         emailLink.classList.add("email-link")
         emailLink.href = 'javascript:;'
         emailLink.onclick = () => {
-          viewEmail(mail.id);
+          viewEmail(mail.id, mailbox);
         }
-        //emailLink.addEventListener('click', viewEmail());
 
         emailDiv = document.createElement('div');
         emailDiv.classList.add("email-div");
@@ -102,10 +102,11 @@ function load_mailbox(mailbox) {
     });
 }
 
-const viewEmail = mailID => {
+const viewEmail = (mailID, mailbox) => {
   document.querySelector('#emails-view').style.display = 'none';
   document.querySelector('#compose-view').style.display = 'none';
   document.querySelector('#email-view').style.display = 'block';
+
 
 
   fetch(`/emails/${mailID}`)
@@ -120,8 +121,25 @@ const viewEmail = mailID => {
       text = document.createElement('p');
       text.innerHTML = `<b>${email.sender}</b> <p>${email.subject}</p> <p>${email.body}</p> <p>${email.timestamp}</p>`
 
+      //Create archive button if mailbox == inbox
+      if (mailbox == 'inbox' || mailbox == 'archive') {
+        archiveButton = document.createElement('button');
+        if (email.archived == true) {
+          archiveButton.textContent = 'Unarchive';
+        } else {
+          archiveButton.textContent = 'Archive';
+        }
+
+        archiveButton.onclick = () => {
+          archiveMail(mailID, email.archived);
+        }
+        viewEmailDiv.append(archiveButton);
+      }
+
       viewEmailDiv.append(text);
+
     });
+
 
   //mark as read
   fetch(`/emails/${mailID}`, {
@@ -130,4 +148,30 @@ const viewEmail = mailID => {
       read: true
     })
   })
+}
+
+const archiveMail = (mailID, archived) => {
+  if (archived == true) {
+    fetch(`/emails/${mailID}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        archived: false
+      })
+    })
+    .then(response => response.JSON())
+    .then(result => {
+      load_mailbox('inbox');
+    })
+  } else {
+    fetch(`/emails/${mailID}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        archived: true
+      })
+    })
+    .then(response => response.JSON())
+    .then(result => {
+      load_mailbox('inbox');
+    })
+  }
 }
